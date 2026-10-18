@@ -466,7 +466,7 @@ MonoBehaviour:
   _volumeMax: {x: 5.25, y: 6, z: 5.25}
   _resolution: {x: 192, y: 128, z: 192}
   _ballRadius: 0.09
-  bakedVolume: {fileID: 11400000, guid: 5e50e207dbfa50b41abdb97003f4adb4, type: 2}
+  _bakedVolume: {fileID: 11400000, guid: 5e50e207dbfa50b41abdb97003f4adb4, type: 2}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
