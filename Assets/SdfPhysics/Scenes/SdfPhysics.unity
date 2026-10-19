@@ -426,6 +426,7 @@ GameObject:
   m_Component:
   - component: {fileID: 468040720}
   - component: {fileID: 468040721}
+  - component: {fileID: 468040722}
   m_Layer: 0
   m_Name: SdfPhysics
   m_TagString: Untagged
@@ -467,6 +468,33 @@ MonoBehaviour:
   _resolution: {x: 192, y: 128, z: 192}
   _ballRadius: 0.09
   _bakedVolume: {fileID: 11400000, guid: 5e50e207dbfa50b41abdb97003f4adb4, type: 2}
+--- !u!114 &468040722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 468040719}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b251e433eeaeb6b4fa30f2cc6a126439, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SdfPhysics.Runtime.Simulation.BallSimulationController
+  _bakeSettings: {fileID: 468040721}
+  _ballCount: 500
+  _spawnSeed: 12345
+  _spawnHalfExtents: {x: 4.4, y: 4.4}
+  _spawnHeightRange: {x: 2.3, y: 5.4}
+  _substepDuration: 0.008333334
+  _maximumSubstepsPerFrame: 4
+  _innerLoopBatchSize: 128
+  _gravity: -9.81
+  _restitution: 0.05
+  _friction: 8
+  _bounceSpeedThreshold: 0.75
+  _restSpeedThreshold: 0.15
+  _sleepDelay: 0.25
+  _surfaceSkin: 0.001
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
