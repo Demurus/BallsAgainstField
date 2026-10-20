@@ -427,6 +427,8 @@ GameObject:
   - component: {fileID: 468040720}
   - component: {fileID: 468040721}
   - component: {fileID: 468040722}
+  - component: {fileID: 468040723}
+  - component: {fileID: 468040724}
   m_Layer: 0
   m_Name: SdfPhysics
   m_TagString: Untagged
@@ -481,10 +483,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SdfPhysics.Runtime.Simulation.BallSimulationController
   _bakeSettings: {fileID: 468040721}
-  _ballCount: 500
+  _ballCount: 10000
   _spawnSeed: 12345
   _spawnHalfExtents: {x: 4.4, y: 4.4}
-  _spawnHeightRange: {x: 2.3, y: 5.4}
+  _spawnHeightRange: {x: 3.1, y: 5.4}
   _substepDuration: 0.008333334
   _maximumSubstepsPerFrame: 4
   _innerLoopBatchSize: 128
@@ -495,6 +497,35 @@ MonoBehaviour:
   _restSpeedThreshold: 0.15
   _sleepDelay: 0.25
   _surfaceSkin: 0.001
+--- !u!114 &468040723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 468040719}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b545a9b9ad1ad854ba03b0fe20c23c7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SdfPhysics.Runtime.Rendering.BallIndirectRenderer
+  _simulation: {fileID: 468040722}
+  _ballMesh: {fileID: 4300000, guid: 0b875ece767f7314d884fdd233dbeef2, type: 2}
+  _ballMaterial: {fileID: 2100000, guid: 1c9dfbcd9bba53e48a7ac98f6a7c9245, type: 2}
+--- !u!114 &468040724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 468040719}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cd37f2751e545c4dab61a92c4e745c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SdfPhysics.Runtime.Presentation.BallPerformanceReadout
+  _simulation: {fileID: 468040722}
+  _refreshInterval: 0.25
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0

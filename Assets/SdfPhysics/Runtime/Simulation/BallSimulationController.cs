@@ -18,31 +18,42 @@ namespace SdfPhysics.Runtime.Simulation
 
         [Header("Ball population")]
         [SerializeField, Min(1)] private int _ballCount = 500;
+        //Begin seed for ball generator
         [SerializeField] private uint _spawnSeed = 12345;
+        //Horizontal Spawn Area
         [SerializeField] private Vector2 _spawnHalfExtents = new(4.4f, 4.4f);
+        //Min and max height of spawn
         [SerializeField] private Vector2 _spawnHeightRange = new(2.3f, 5.4f);
 
         [Header("Fixed-step simulation")]
+        //2 steps if 60FPS
         [SerializeField, Min(0.001f)] private float _substepDuration = 1f / 120f;
+        //Maximum substeps in case of overload
         [SerializeField, Min(1)] private int _maximumSubstepsPerFrame = 4;
         //Size of the chunks to divide the jobs like 0-127, 128-255...
         [SerializeField, Min(1)] private int _innerLoopBatchSize = 128;
         [SerializeField] private float _gravity = -9.81f;
-        [SerializeField, Range(0f, 1f)] private float _restitution = 0.05f;
+        [SerializeField, Range(0f, 1f)] private float _bounciness = 0.05f;
+        //How fast the ball movement decreases when it is on a surface
         [SerializeField, Min(0f)] private float _friction = 8f;
+        //If hit is slower than this _threshold - ball stops bouncing
         [SerializeField, Min(0f)] private float _bounceSpeedThreshold = 0.75f;
+        //How slow tha ball should be to be considered stable 
         [SerializeField, Min(0f)] private float _restSpeedThreshold = 0.15f;
         //ball has to be fully or almost fully stable within this time to mark it out of physics 
         [SerializeField, Min(0f)] private float _sleepDelay = 0.25f;
+        //Small empty area to properly return the ball out of the geometry
         [SerializeField, Min(0f)] private float _surfaceSkin = 0.001f;
 
         private BallRuntimeSimulationHolders _holders;
         private SdfVolumeRuntime _sdfVolume;
         private JobHandle _scheduledHandle;
-        private float _accumulator;
+        private float _timeAccumulator; //how much time accumulated for the next simulation steps
 
         public int BallCount => _holders?.Count ?? 0;
         public bool IsInitialized => _holders != null;
+        public float BallRadius => _bakeSettings != null ? _bakeSettings.BallRadius : 0f;
+        public Bounds SimulationBounds => _bakeSettings != null ? _bakeSettings.VolumeBounds : default;
 
         /// <summary>
         /// Positions for the renderer.
@@ -66,16 +77,16 @@ namespace SdfPhysics.Runtime.Simulation
             }
 
             // Improving the collision resolution by creating 2 physics substeps at one frame
-            _accumulator = math.min(
-                _accumulator + Time.deltaTime,
+            _timeAccumulator = math.min(
+                _timeAccumulator + Time.deltaTime,
                 _substepDuration * _maximumSubstepsPerFrame);
 
             var substepCount = 0;
             var handle = default(JobHandle);
-            while (_accumulator >= _substepDuration && substepCount < _maximumSubstepsPerFrame)
+            while (_timeAccumulator >= _substepDuration && substepCount < _maximumSubstepsPerFrame)
             {
                 handle = CreateJob().ScheduleParallel(_holders.Count, _innerLoopBatchSize, handle);
-                _accumulator -= _substepDuration;
+                _timeAccumulator -= _substepDuration;
                 substepCount++;
             }
 
@@ -100,7 +111,7 @@ namespace SdfPhysics.Runtime.Simulation
                 Gravity = new float3(0f, _gravity, 0f),
                 DeltaTime = _substepDuration,
                 BallRadius = _bakeSettings.BallRadius,
-                Bounce = _restitution,
+                Bounce = _bounciness,
                 Friction = _friction,
                 BounceSpeedThreshold = _bounceSpeedThreshold,
                 RestSpeedThreshold = _restSpeedThreshold,
@@ -160,7 +171,7 @@ namespace SdfPhysics.Runtime.Simulation
             _sdfVolume?.Dispose();
             _sdfVolume = null;
 
-            _accumulator = 0f;
+            _timeAccumulator = 0f;
         }
 
         private void OnValidate()
