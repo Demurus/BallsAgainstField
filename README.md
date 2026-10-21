@@ -52,7 +52,7 @@ Frame Debugger verification at 10,000 balls:
 - Shader: `SDF Physics/Indirect Ball`
 - Output: the balls only
 - Draw Calls: **1**
-![FrameDebugger.png](FrameDebugger.png)
+![FrameDebugger.jpg](FrameDebugger.jpg)
 
 The Frame Debugger leaves the instance count blank because the indirect GPU command buffer supplies it; the command is initialized with an instance count of 10,000.
 
