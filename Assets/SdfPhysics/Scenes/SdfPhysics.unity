@@ -489,9 +489,10 @@ MonoBehaviour:
   _spawnHeightRange: {x: 3.1, y: 5.4}
   _substepDuration: 0.008333334
   _maximumSubstepsPerFrame: 4
+  _maximumCollisionSubsteps: 16
   _innerLoopBatchSize: 128
   _gravity: -9.81
-  _restitution: 0.05
+  _bounciness: 0.126
   _friction: 8
   _bounceSpeedThreshold: 0.75
   _restSpeedThreshold: 0.15
@@ -508,7 +509,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b545a9b9ad1ad854ba03b0fe20c23c7f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SdfPhysics.Runtime.Rendering.BallIndirectRenderer
+  m_EditorClassIdentifier: Assembly-CSharp::SdfPhysics.Runtime.Rendering.BallRenderer
   _simulation: {fileID: 468040722}
   _ballMesh: {fileID: 4300000, guid: 0b875ece767f7314d884fdd233dbeef2, type: 2}
   _ballMaterial: {fileID: 2100000, guid: 1c9dfbcd9bba53e48a7ac98f6a7c9245, type: 2}
@@ -523,7 +524,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8cd37f2751e545c4dab61a92c4e745c2, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SdfPhysics.Runtime.Presentation.BallPerformanceReadout
+  m_EditorClassIdentifier: Assembly-CSharp::SdfPhysics.Runtime.UI.BallPerformanceUI
   _simulation: {fileID: 468040722}
   _refreshInterval: 0.25
 --- !u!1 &832575517

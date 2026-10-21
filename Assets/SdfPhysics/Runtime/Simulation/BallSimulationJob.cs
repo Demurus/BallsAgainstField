@@ -28,6 +28,7 @@ namespace SdfPhysics.Runtime.Simulation
         public float BounceSpeedThreshold;
         public float RestSpeedThreshold;
         public float SleepDelay;
+        public int MaximumCollisionSubsteps;
         //Tiny empty space between floor and ball, to not let the ball be treated as penetrated when lying on the ground 
         public float SurfaceSkin;
 
@@ -38,46 +39,67 @@ namespace SdfPhysics.Runtime.Simulation
                 return;
             }
 
-            var velocity = Velocities[index] + Gravity * DeltaTime;
-            var position = Positions[index] + velocity * DeltaTime;
-
-            if (!Grid.TrySample(position, out var sample))
-            {
-                //If a ball is beyond the edge of the volume - reset it to spawn
-                Positions[index] = SpawnPositions[index];
-                Velocities[index] = float3.zero;
-                RestTimes[index] = 0f;
-                Sleeping[index] = 0;
-                return;
-            }
-
-            var penetration = BallRadius - sample.Distance;
-            var restTime = 0f;
+            var position = Positions[index];
+            var velocity = Velocities[index];
+            var restTime = RestTimes[index];
             var sleep = (byte)0;
+            var endVelocity = velocity + Gravity * DeltaTime;
+            var travel = math.max(math.length(velocity), math.length(endVelocity)) * DeltaTime;
+            var maximumTravelPerStep = math.max(0.001f, math.min(BallRadius, math.cmin(Grid.CellSize)));
+            var stepCount = math.clamp((int)math.ceil(travel / maximumTravelPerStep), 1, MaximumCollisionSubsteps);
+            var stepDuration = DeltaTime / stepCount;
 
-            if (penetration > 0f)
+            for (var step = 0; step < stepCount; step++)
             {
-                var groundUpVector = math.normalizesafe(sample.OutDirection, new float3(0f, 1f, 0f));//TODO try create float 3 once
-                position += groundUpVector * (penetration + SurfaceSkin);
-                
-                var upSpeed = math.dot(velocity, groundUpVector); //what is current up (normal) speed?
-                if (upSpeed < 0f) // Ball is moving towards the inside of ground
+                velocity += Gravity * stepDuration;
+                position += velocity * stepDuration;
+
+                if (!Grid.TrySample(position, out var sample))
                 {
-                    var bounceOut = upSpeed < -BounceSpeedThreshold ? Bounce : 0f; //If ball's down speed (velocity) was fast - let it bounce
-                    velocity -= (1f + bounceOut) * upSpeed * groundUpVector;
+                    // The baked field has no reliable distance or gradient beyond its bounds
+                    // If a ball is beyond the edge of the volume - reset it to spawn
+                    Positions[index] = SpawnPositions[index];
+                    Velocities[index] = float3.zero;
+                    RestTimes[index] = 0f;
+                    Sleeping[index] = 0;
+                    return;
                 }
 
-                var dragVelocity = velocity - math.dot(velocity, groundUpVector) * groundUpVector; //Calculating the velocity of possible horizontal movement
-                velocity -= dragVelocity * math.saturate(Friction * DeltaTime);
-                
-                if (math.abs(upSpeed) <= RestSpeedThreshold && math.lengthsq(dragVelocity) <= RestSpeedThreshold * RestSpeedThreshold) //Stopping the ball if its up speed and rest time are below grades 
+                var penetration = BallRadius - sample.Distance;
+                if (penetration < -SurfaceSkin)
                 {
-                    restTime = RestTimes[index] + DeltaTime;
+                    restTime = 0f;
+                    continue;
+                }
+
+                // Treat the small skin gap as contact, so a resting ball keeps its sleep timer
+                var normal = math.normalizesafe(sample.OutDirection, new float3(0f, 1f, 0f));
+                position += normal * math.max(0f, penetration + SurfaceSkin);
+
+                var inwardSpeed = math.dot(velocity, normal);
+                if (inwardSpeed < 0f)
+                {
+                    var bounce = inwardSpeed < -BounceSpeedThreshold ? Bounce : 0f;
+                    velocity -= (1f + bounce) * inwardSpeed * normal;
+                }
+
+                var tangentialVelocity = velocity - math.dot(velocity, normal) * normal;
+                velocity -= tangentialVelocity * math.saturate(Friction * stepDuration);
+
+                if (math.abs(inwardSpeed) <= RestSpeedThreshold &&
+                    math.lengthsq(tangentialVelocity) <= RestSpeedThreshold * RestSpeedThreshold)
+                {
+                    restTime += stepDuration;
                     if (restTime >= SleepDelay)
                     {
                         velocity = float3.zero;
                         sleep = 1;
+                        break;
                     }
+                }
+                else
+                {
+                    restTime = 0f;
                 }
             }
 

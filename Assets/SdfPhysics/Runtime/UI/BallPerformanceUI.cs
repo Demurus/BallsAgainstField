@@ -4,8 +4,7 @@ using UnityEngine;
 namespace SdfPhysics.Runtime.UI
 {
     /// <summary>
-    /// Shows a short moving-average frame rate so a
-    /// single unusually slow frame does not dominate the readout
+    /// Shows average frame time and frame rate over a short interval
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class BallPerformanceUI : MonoBehaviour
@@ -16,7 +15,7 @@ namespace SdfPhysics.Runtime.UI
         private GUIStyle _labelStyle;
         private float _elapsed;
         private int _frameCount;
-        private string _readout = "Balls: --\nFPS: --";
+        private string _readout = "Balls: --\nFrame: -- ms\nFPS: --";
 
         private void Update()
         {
@@ -29,8 +28,9 @@ namespace SdfPhysics.Runtime.UI
             }
 
             var framesPerSecond = _frameCount / _elapsed;
+            var frameTimeMilliseconds = _elapsed * 1000f / _frameCount;
             var ballCount = _simulation != null ? _simulation.BallCount : 0;
-            _readout = $"Balls: {ballCount:N0}\nFPS: {framesPerSecond:F1}";
+            _readout = $"Balls: {ballCount:N0}\nFrame: {frameTimeMilliseconds:F2} ms\nFPS: {framesPerSecond:F1}";
             _elapsed = 0f;
             _frameCount = 0;
         }
@@ -47,7 +47,7 @@ namespace SdfPhysics.Runtime.UI
                 };
             }
 
-            GUI.Label(new Rect(16f, 16f, 300f, 60f), _readout, _labelStyle);
+            GUI.Label(new Rect(16f, 16f, 300f, 90f), _readout, _labelStyle);
         }
 
         private void OnValidate()

@@ -12,37 +12,37 @@ namespace SdfPhysics.Runtime.Simulation
     [DisallowMultipleComponent]
     public sealed class BallSimulationController : MonoBehaviour
     {
-        
         [Header("Baked collision")]
         [SerializeField] private SdfBakeSettings _bakeSettings;
-
         [Header("Ball population")]
         [SerializeField, Min(1)] private int _ballCount = 500;
-        //Begin seed for ball generator
+        [Header("Begin seed for ball generator")]
         [SerializeField] private uint _spawnSeed = 12345;
-        //Horizontal Spawn Area
+        [Header("Horizontal Spawn Area")]
         [SerializeField] private Vector2 _spawnHalfExtents = new(4.4f, 4.4f);
-        //Min and max height of spawn
+        [Header("Min and max height of spawn")]
         [SerializeField] private Vector2 _spawnHeightRange = new(2.3f, 5.4f);
-
         [Header("Fixed-step simulation")]
-        //2 steps if 60FPS
-        [SerializeField, Min(0.001f)] private float _substepDuration = 1f / 120f;
-        //Maximum substeps in case of overload
+        [SerializeField, Min(0.001f)] private float _substepDuration = 1f / 120f; //2 steps if 60FPS
+        [Header("Maximum substeps in case of overload")]
         [SerializeField, Min(1)] private int _maximumSubstepsPerFrame = 4;
-        //Size of the chunks to divide the jobs like 0-127, 128-255...
+        [Header("Extra collision checks within a step when a ball moves quickly")]
+        [SerializeField, Min(1)] private int _maximumCollisionSubsteps = 16;
+        [Header("Size of the chunks to divide the jobs like 0-127, 128-255...")]
         [SerializeField, Min(1)] private int _innerLoopBatchSize = 128;
+        [Header("Gravity")]
         [SerializeField] private float _gravity = -9.81f;
+        [Header("Bounciness")]
         [SerializeField, Range(0f, 1f)] private float _bounciness = 0.05f;
-        //How fast the ball movement decreases when it is on a surface
+        [Header("How fast the ball movement decreases when it is on a surface")]
         [SerializeField, Min(0f)] private float _friction = 8f;
-        //If hit is slower than this _threshold - ball stops bouncing
+        [Header("If hit is slower than this threshold - ball stops bouncing")]
         [SerializeField, Min(0f)] private float _bounceSpeedThreshold = 0.75f;
-        //How slow tha ball should be to be considered stable 
+        [Header("How slow tha ball should be to be considered stable ")]
         [SerializeField, Min(0f)] private float _restSpeedThreshold = 0.15f;
-        //ball has to be fully or almost fully stable within this time to mark it out of physics 
+        [Header("ball has to be fully or almost fully stable within this time to mark it out of physics ")]
         [SerializeField, Min(0f)] private float _sleepDelay = 0.25f;
-        //Small empty area to properly return the ball out of the geometry
+        [Header("Small empty area to properly return the ball out of the geometry")]
         [SerializeField, Min(0f)] private float _surfaceSkin = 0.001f;
 
         private BallRuntimeSimulationHolders _holders;
@@ -116,6 +116,7 @@ namespace SdfPhysics.Runtime.Simulation
                 BounceSpeedThreshold = _bounceSpeedThreshold,
                 RestSpeedThreshold = _restSpeedThreshold,
                 SleepDelay = _sleepDelay,
+                MaximumCollisionSubsteps = _maximumCollisionSubsteps,
                 SurfaceSkin = _surfaceSkin
             };
         }
@@ -183,6 +184,7 @@ namespace SdfPhysics.Runtime.Simulation
             _spawnHeightRange.y = Mathf.Max(_spawnHeightRange.x, _spawnHeightRange.y);
             _substepDuration = Mathf.Max(0.001f, _substepDuration);
             _maximumSubstepsPerFrame = Mathf.Max(1, _maximumSubstepsPerFrame);
+            _maximumCollisionSubsteps = Mathf.Max(1, _maximumCollisionSubsteps);
             _innerLoopBatchSize = Mathf.Max(1, _innerLoopBatchSize);
         }
     }
